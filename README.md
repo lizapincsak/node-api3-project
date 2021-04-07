@@ -32,36 +32,36 @@ There are two possible ways to submit your project. Your instructor should have 
 
 #### Custom Middleware Requirements
 
-- `logger()`
+<!-- - `logger()`
 
   - `logger` logs to the console the following information about each request: request method, request url, and a timestamp
-  - this middleware runs on every request made to the API
+  - this middleware runs on every request made to the API -->
 
-- `validateUserId()`
+<!-- - `validateUserId()` -->
 
-  - this middleware will be used for all user endpoints that include an `id` parameter in the url (ex: `/api/users/:id` and it should check the database to make sure there is a user with that id.
+  <!-- - this middleware will be used for all user endpoints that include an `id` parameter in the url (ex: `/api/users/:id` and it should check the database to make sure there is a user with that id.
   - if the `id` parameter is valid, store the user object as `req.user` and allow the request to continue
-  - if the `id` parameter does not match any user id in the database, respond with status `404` and `{ message: "user not found" }`
+  - if the `id` parameter does not match any user id in the database, respond with status `404` and `{ message: "user not found" }` -->
 
-- `validateUser()`
+<!-- - `validateUser()`
 
   - `validateUser` validates the `body` on a request to create or update a user
   - if the request `body` is missing, respond with status `400` and `{ message: "missing user data" }`
-  - if the request `body` lacks the required `name` field, respond with status `400` and `{ message: "missing required name field" }`
+  - if the request `body` lacks the required `name` field, respond with status `400` and `{ message: "missing required name field" }` -->
 
-- `validatePost()`
+<!-- - `validatePost()`
 
   - `validatePost` validates the `body` on a request to create a new post
   - if the request `body` is missing, respond with status `400` and `{ message: "missing post data" }`
-  - if the request `body` lacks the required `text` field, respond with status `400` and `{ message: "missing required text field" }`
+  - if the request `body` lacks the required `text` field, respond with status `400` and `{ message: "missing required text field" }` -->
 
 ### Database Persistence Helpers
 
 There are two helper files that you can use to manage the persistence of _users_ and _posts_ data. These files are `api/users/users-model.js` and `api/posts/posts-model.js`. Both files publish the following api:
 
-- `get()`: calling find returns a promise that resolves to an array of all the resources contained in the database.
-- `getById()`: takes an `id` as the argument and returns a promise that resolves to the resource with that id if found.
-- `insert()`: calling insert passing it a resource object will add it to the database and return the new resource.
+<!-- - `get()`: calling find returns a promise that resolves to an array of all the resources contained in the database. -->
+<!-- - `getById()`: takes an `id` as the argument and returns a promise that resolves to the resource with that id if found. -->
+<!-- - `insert()`: calling insert passing it a resource object will add it to the database and return the new resource. -->
 - `update()`: accepts two arguments, the first is the `id` of the resource to update and the second is an object with the `changes` to apply. It returns the count of updated records. If the count is 1 it means the record was updated correctly.
 - `remove()`: the remove method accepts an `id` as it's first parameter and, upon successfully deleting the `resource` from the database, returns the number of records deleted.
 
