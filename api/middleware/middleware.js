@@ -1,17 +1,20 @@
 const User = require('../users/users-model');
 
 function logger(req, res, next) {
-  console.log(`[${new Date().toISOString()}] ${req.method} to ${req.url} from ${req.get("Origin")}`)
+  const timestamp = new Date().toLocaleString()
+  const method = req.method
+  const url = req.originalUrl
+  console.log(`[${timestamp}] ${method} to ${url}`)
   next()
 }
 
 const validateUserId = async(req, res, next) =>{
   try{
-    const id = await User.getById(req.params.id)
-    if(!id){
-      res.status(404).json({message: "user not found"})
+    const user = await User.getById(req.params.id)
+    if(!user){
+      next({status: 404, message: "user not found"})
     } else {
-      req.id = id
+      req.user = user
       next()
     }
   } catch(err) {
@@ -20,21 +23,20 @@ const validateUserId = async(req, res, next) =>{
 }
 
 function validateUser(req, res, next) {
-  if(!req.body){
-    res.status(400).json({message: 'missing user data'})
-  } else if (!req.body.name){
-    res.status(400).json({message: "missing required name field"})
+  const { name } = req.body
+  if(!name || !name.trim()){
+    res.status(400).json({message: 'missing required name field'})
   } else {
+    req.name = name.trim()
     next()
-  }
+  } 
 }
 
 function validatePost(req, res, next) {
-  if(!req.body){
-    res.status(400).json({message: "missing post data"})
-  } else if (!req.body.text){
+  const {text} = req.body
+  if(!text || !text.trim()){
     res.status(400).json({message: "missing required text field"})
-  } else{
+  } else {
     next()
   }
 }

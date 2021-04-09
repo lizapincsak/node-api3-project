@@ -1,82 +1,79 @@
 const express = require('express');
 const Users = require('./users-model.js');
 const Posts = require('../posts/posts-model.js');
-const {logger, validatePost, validateUser, validateUserId} = require('../middleware/middleware.js')
+const {validatePost, validateUser, validateUserId} = require('../middleware/middleware.js')
 
 const router = express.Router();
 
-router.get('/', logger, (req, res) => {
+router.get('/', (req, res, next) => {
   Users.get(req.query)
     .then(users => {
-      res.status(200).json(users);
-    })
-    .catch(err => {
-      res.status(500).json({message: err.message})
-    })
-});
-
-router.get('/:id', logger, validateUserId, (req, res) => {
-  res.status(200).json(req.id)
-});
-
-router.post('/', logger, validateUser, (req, res, next) => {
-  Users.insert(req.body)
-    .then(user => {
-      res.status(201).json(user)
+      res.json(users);
     })
     .catch(next)
 });
 
-router.put('/:id', logger, validateUserId, validateUser, (req, res) => {
-  const changes = req.body
-  Users.update(req.params.id, changes)
+router.get('/:id', validateUserId, (req, res) => {
+  res.json(req.user)
+});
+
+router.post('/', validateUser, (req, res, next) => {
+  Users.insert({name: req.name})
+    .then(newUser => {
+      res.status(201).json(newUser)
+    })
+    .catch(next)
+});
+
+router.put('/:id', validateUserId, validateUser, (req, res, next) => {
+  Users.update(req.params.id, {name: req.name})
+    .then(()=> {
+      return Users.getById(req.params.id)
+    })
     .then(user => {
-        res.status(200).json(user)
+      res.json(user)
     })
-    .catch(err => {
-      res.status(500).json({message: err.message})
-    })
+    .catch(next)
 });
 
-router.delete('/:id', logger, validateUserId, (req, res, next) => {
-    Users.remove(req.params.id)
-      .then(() => {
-        res.status(200).json({message: `This is number deleted ${req.params.id}`})
-      })
-      .catch(err => {
-        next({message: err.message})
-      })
+router.delete('/:id', validateUserId, async (req, res, next) => {
+  try{
+   await Users.remove(req.params.id)
+   res.json(req.user)
+  }
+  catch(err){
+    next(err)
+  }
 });
 
-router.get('/:id/posts', logger, validateUserId, (req, res, next) => {
-  Users.getUserPosts(req.params.id)
-    .then(posts => {
-      if(posts){
-        res.status(200).json(posts)
-      } else {
-        res.status(404).json({message: "Post not found"})
-      }
-    })
-    .catch(err => {
-      next({message: err.message})
-    })
+router.get('/:id/posts', validateUserId, async (req, res, next) => {
+  try{
+    const result = await Users.getUserPosts(req.params.id)
+    res.json(result)
+  }
+  catch(err){
+    next(err)
+  }
 });
 
-router.post('/:id/posts', logger, validateUserId, validatePost, (req, res, next) => {
-  const postInfo = {...req.body, user_id: req.body.id}
-  Posts.insert(postInfo)
-    .then(post => {
-      res.status(200).json(post)
+router.post('/:id/posts', validateUserId, validatePost, async (req, res, next) => {
+  try{
+    const result = await Posts.insert({
+      user_id: req.params.id,
+      text: req.text,
     })
-    .catch(err => {
-      next({message: err.message})
-    })
+    res.status(201).json(result)
+  }
+  catch(err){
+    next(err)
+  }
 });
 
-router.use((err,req,res,next)=>{
-  res.status(500).json({
-    message:"Something died",
-    error:err.message
+router.use((err, req, res, next)=>{ //eslint-disable-line
+  res.status(err.status || 500).json({
+    customMessage: 'something tragic happened',
+    message: err.message, 
+    stack: err.stack,
   })
 })
 
